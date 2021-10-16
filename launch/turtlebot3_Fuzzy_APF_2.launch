@@ -1,0 +1,35 @@
+<launch>
+  <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
+  <arg name="x_pos" default="4.5"/>
+  <arg name="y_pos" default="0.5"/>
+  <arg name="z_pos" default="0.0"/>
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="/home/caty/catkin_ws/src/Auto_Tut5_Ex/APF_Map/APF_World.world"/>
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>
+
+  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
+
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf" args="-urdf -model turtlebot3_$(arg model) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
+
+  <node pkg="Auto_Tut5_Ex" name="APF" type="APF.py">
+    <param name="x_Goal" value="2.5" />   
+    <param name="y_Goal" value="4.5" />
+    <param name="x_Obs" value="2.5" />   
+    <param name="y_Obs" value="2.5" />
+    <param name="K_att" value="8" />   
+    <param name="K_rep" value="100" /> 
+    <param name="q_star" value="1.4" /> 
+    <param name="tau" value="0.1" /> 
+    <param name="rob_mass" value="1.8" /> 
+   </node>
+
+  <node pkg="Auto_Tut8_Ex" name="Fuzzy_Rob_APF_2" type="Fuzzy_Rob_APF_2.py" output="screen"/>
+
+  <node pkg="rqt_graph" name="rqt_graph" type="rqt_graph"/>
+</launch>
